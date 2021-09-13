@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
         std::exit(1);
     }
 
-    auto s = f.renderGlyphBlended('b', {100, 100, 200, 200});
+    auto s = f.renderGlyphBlended('b', {255, 255, 255, 255});
 
     if (!s) {
         std::cerr << "could not create surface from glyph\n";
@@ -67,6 +67,8 @@ int main(int argc, char **argv) {
         renderer.fillRect();
 
         auto rect = sdl::Rect{0, 0, s->w, s->h};
+
+        texture.colorMod(100, 10, 10);
         renderer.copy(texture, rect, rect);
 
         renderer.present();
