@@ -7,22 +7,29 @@
 #include <filesystem>
 #include <iostream>
 #include <map>
+#include <vector>
 
 namespace {
 
-struct Screen {
-    int width = 20;
-    int height = 20;
+struct CharacterCache {
     int charWidth = 0;
     int charHeight = 0;
     ttf::Font font;
+    std::map<uint32_t, sdl::Texture> textures;
 
-    Screen()
-        : font{ttf::Font{"data/UbuntuMono-Regular.ttf", 20}} {
-
+    ttf::Font loadFont(const char *filename, int size) {
         ttf::init();
+        return ttf::Font{filename, size};
+    }
+
+    CharacterCache()
+        : font{ttf::Font{loadFont("data/UbuntuMono-Regular.ttf", 20)}} {
 
         if (!font) {
+            if (!std::filesystem::exists("data/UbuntuMono-Regular.ttf")) {
+                std::cerr << "font does not exist\n";
+            }
+
             std::cerr << "could not load font\n";
             std::exit(1);
         }
@@ -33,19 +40,79 @@ struct Screen {
         }
     }
 
-    std::map<uint32_t, sdl::Texture> textures;
+    uint32_t str2i(std::string_view str) {
+        int ret = 0;
+        for (size_t i = 0; i < str.size(); ++i) {
+            ret = static_cast<uint32_t>(str.at(i)) << 8 * i;
+        }
+        return ret;
+    }
 
-    sdl::Texture *getCharacter(sdl::Renderer &renderer, std::string_view c) {
+    sdl::TextureView getCharacter(sdl::RendererView renderer,
+                                  std::string_view c) {
         auto str = std::string{c.substr(0, 4)};
-        auto i = uint32_t{0};
-        std::memcpy(&i, str.data(), str.size());
+        auto i = str2i(c);
 
         if (auto f = textures.find(i); f != textures.end()) {
-            return &f->second;
+            return {f->second};
         }
 
         auto s = font.renderUTF8Blended(str.c_str(), {255, 255, 255, 255});
-        return &(textures[i] = renderer.createTextureFromSurface(s));
+        return {textures[i] = renderer.createTextureFromSurface(s)};
+    }
+};
+
+struct CanvasCell {
+    sdl::TextureView texture = {};
+
+    sdl::Color fg = {255, 255, 255, 255};
+    sdl::Color bg = {0, 0, 0, 255};
+};
+
+struct Canvas {
+    int width = 0;
+    int height = 0;
+    std::vector<CanvasCell> values;
+
+    Canvas(int width, int height)
+        : width(width)
+        , height(height) {
+        values.resize(width * height);
+    }
+
+    auto at(int x, int y) -> CanvasCell & {
+        return values.at(y * width + x);
+    }
+};
+
+struct Screen {
+    Canvas canvas;
+    CharacterCache cache;
+
+    Screen()
+        : canvas{20, 10} {}
+
+    void render(sdl::RendererView renderer) {
+        for (int y = 0; y < canvas.height; ++y) {
+            for (int x = 0; x < canvas.width; ++x) {
+                auto rect = sdl::Rect{x * cache.charWidth,
+                                      y * cache.charHeight,
+                                      cache.charWidth,
+                                      cache.charHeight};
+
+                auto cell = canvas.at(x, y);
+
+                renderer.drawColor(cell.bg);
+                renderer.fillRect(rect);
+
+                if (!cell.texture) {
+                    continue;
+                }
+
+                cell.texture.colorMod(cell.fg);
+                renderer.copy(cell.texture, rect);
+            }
+        }
     }
 };
 
@@ -72,13 +139,6 @@ int main(int argc, char **argv) {
         std::exit(1);
     }
 
-    auto f = ttf::Font{"data/UbuntuMono-Regular.ttf", 20};
-
-    if (!f) {
-        std::cerr << "could not load font\n";
-        std::exit(1);
-    }
-
     auto screen = Screen{};
 
     for (auto event = sdl::waitEvent(); event.type != SDL_QUIT;
@@ -99,23 +159,20 @@ int main(int argc, char **argv) {
         renderer.fillRect();
 
         {
-            auto &texture = screen.textures['a'];
-            auto rect = sdl::Rect{0, 0, screen.charWidth, screen.charHeight};
+            auto &c = screen.canvas.at(1, 1);
+            c.texture = screen.cache.getCharacter(renderer, "ä");
+            c.fg = sdl::White;
+            c.bg = sdl::Red;
+        }
 
-            renderer.drawColor(100, 0, 0);
-            renderer.fillRect(rect);
-            texture.colorMod(0, 10, 10);
-            renderer.copy(texture, rect, rect);
-        }
         {
-            //            auto &texture = screen.textures['x'];
-            auto texture = screen.getCharacter(renderer, "ö");
-            auto rect = sdl::Rect{
-                0, screen.charHeight, screen.charWidth, screen.charHeight};
-            renderer.fillRect(rect);
-            texture->colorMod(255, 255, 255);
-            renderer.copy(*texture, {}, &rect);
+            auto &c = screen.canvas.at(1, 4);
+            c.texture = screen.cache.getCharacter(renderer, "o");
+            c.fg = sdl::White;
+            c.bg = sdl::Blue;
         }
+
+        screen.render(renderer);
 
         renderer.present();
     }
