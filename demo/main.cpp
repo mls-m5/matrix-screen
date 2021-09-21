@@ -14,7 +14,7 @@
 using namespace matscreen;
 
 int main(int argc, char **argv) {
-    auto screenSize = sdl::Dims{300, 200};
+    auto screenSize = sdl::Dims{80, 40};
 
     auto window = sdl::Window{"matrix view",
                               SDL_WINDOWPOS_CENTERED,
@@ -36,7 +36,11 @@ int main(int argc, char **argv) {
         std::exit(1);
     }
 
-    auto screen = MatrixScreen{screenSize.w, screenSize.h};
+    auto screen =
+        MatrixScreen{screenSize.w, screenSize.h, "data/UbuntuMono-Regular.ttf"};
+
+    window.size(screenSize.w * screen.cache.charWidth,
+                screenSize.h * screen.cache.charHeight);
 
     for (auto event = sdl::waitEvent(); event.type != SDL_QUIT;
          event = sdl::waitEvent()) {

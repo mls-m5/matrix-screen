@@ -18,11 +18,11 @@ struct CharacterCache {
         return ttf::Font{filename, size};
     }
 
-    CharacterCache()
-        : font{ttf::Font{loadFont("data/UbuntuMono-Regular.ttf", 20)}} {
+    CharacterCache(const std::string &filename)
+        : font{ttf::Font{loadFont(filename.c_str(), 20)}} {
 
         if (!font) {
-            std::cerr << "could not load font\n";
+            std::cerr << "could not load font " << filename << "\n";
             std::exit(1);
         }
         {
