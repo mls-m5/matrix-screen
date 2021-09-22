@@ -36,8 +36,7 @@ struct MatrixScreen {
     }
 
     void resize(int width, int height) {
-        auto newCanvas =
-            Canvas{width / cache.charWidth, height / cache.charHeight};
+        auto newCanvas = Canvas{width, height};
 
         for (int y = 0; y < std::min(canvas.height, newCanvas.height); ++y) {
             for (int x = 0; x < std::min(canvas.width, newCanvas.width); ++x) {

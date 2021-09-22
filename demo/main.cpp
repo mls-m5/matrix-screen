@@ -19,8 +19,8 @@ int main(int argc, char **argv) {
     auto window = sdl::Window{"matrix view",
                               SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED,
-                              screenSize.w,
-                              screenSize.h,
+                              800,
+                              600,
                               SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE};
 
     if (!window) {
@@ -52,7 +52,8 @@ int main(int argc, char **argv) {
                 int width = event.window.data1;
                 int height = event.window.data2;
 
-                screen.resize(width, height);
+                screen.resize(width / screen.cache.charWidth,
+                              height / screen.cache.charHeight);
                 renderer.present();
             }
             break;
