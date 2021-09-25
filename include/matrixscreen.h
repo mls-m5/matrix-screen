@@ -8,8 +8,11 @@ struct MatrixScreen {
     CharacterCache cache;
     Canvas canvas;
 
-    MatrixScreen(int width, int height, std::string fontFilename)
-        : cache{fontFilename}
+    MatrixScreen(int width,
+                 int height,
+                 std::string fontFilename,
+                 int fontSize = 12)
+        : cache{fontFilename, fontSize}
         , canvas{width, height} {}
 
     void render(sdl::RendererView renderer) {

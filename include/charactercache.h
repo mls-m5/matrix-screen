@@ -18,8 +18,8 @@ struct CharacterCache {
         return ttf::Font{filename, size};
     }
 
-    CharacterCache(const std::string &filename)
-        : font{ttf::Font{loadFont(filename.c_str(), 20)}} {
+    CharacterCache(const std::string &filename, int fontSize)
+        : font{ttf::Font{loadFont(filename.c_str(), fontSize)}} {
 
         if (!font) {
             std::cerr << "could not load font " << filename << "\n";
