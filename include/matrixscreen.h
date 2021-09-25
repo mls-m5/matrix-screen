@@ -15,25 +15,34 @@ struct MatrixScreen {
         : cache{fontFilename, fontSize}
         , canvas{width, height} {}
 
+    // Render the whole screen at once
     void render(sdl::RendererView renderer) {
-        for (int y = 0; y < canvas.height; ++y) {
-            for (int x = 0; x < canvas.width; ++x) {
-                auto rect = sdl::Rect{x * cache.charWidth,
-                                      y * cache.charHeight,
-                                      cache.charWidth,
-                                      cache.charHeight};
+        render(renderer, 0, 0, {0, 0, canvas.width, canvas.height});
+    }
+
+    void render(sdl::RendererView renderer,
+                int targetX,
+                int targetY,
+                sdl::Rect rect) {
+        for (int y = rect.y; y < rect.y + rect.h; ++y) {
+            for (int x = rect.x; x < rect.x + rect.w; ++x) {
+                auto dstRect =
+                    sdl::Rect{(x - rect.x) * cache.charWidth + targetX,
+                              (y - rect.y) * cache.charHeight + targetY,
+                              cache.charWidth,
+                              cache.charHeight};
 
                 auto cell = canvas.at(x, y);
 
                 renderer.drawColor(cell.bg);
-                renderer.fillRect(rect);
+                renderer.fillRect(dstRect);
 
                 if (!cell.texture) {
                     continue;
                 }
 
                 cell.texture.colorMod(cell.fg);
-                renderer.copy(cell.texture, rect);
+                renderer.copy(cell.texture, dstRect);
             }
         }
     }
