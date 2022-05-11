@@ -2,6 +2,14 @@
 cmake_minimum_required(VERSION 3.23)
 project(matrix-screen)
 
+add_subdirectory(
+    lib/sdlpp
+    )
+
+add_library(
+    ${PROJECT_NAME}
+    INTERFACE
+    )
 
 if(EMSCRIPTEN)
     set(
@@ -16,14 +24,6 @@ else()
         )
 endif()
 
-add_subdirectory(
-    lib/sdlpp
-    )
-
-add_library(
-    ${PROJECT_NAME}
-    INTERFACE
-    )
 
 list(APPEND
     CMAKE_MODULE_PATH
