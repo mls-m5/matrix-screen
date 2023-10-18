@@ -12,10 +12,13 @@ struct CharacterCache {
     int charHeight = 0;
     ttf::Font font;
     std::map<uint32_t, sdl::Texture> textures;
+    std::string filename;
 
-    ttf::Font loadFont(const char *filename, int size) {
+    ttf::Font loadFont(std::string filename, int size) {
+        textures.clear();
+        this->filename = filename;
         ttf::init();
-        return ttf::Font{filename, size};
+        return ttf::Font{filename.c_str(), size};
     }
 
     CharacterCache(const std::string &filename, int fontSize)
@@ -30,6 +33,10 @@ struct CharacterCache {
             charWidth = a->w;
             charHeight = a->h;
         }
+    }
+
+    void resize(int fontSize) {
+        font = loadFont(filename, fontSize);
     }
 
     uint32_t str2i(std::string_view str) {

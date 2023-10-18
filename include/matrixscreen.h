@@ -59,6 +59,10 @@ struct MatrixScreen {
         canvas = std::move(newCanvas);
     }
 
+    void resizeFont(int fontSize) {
+        cache.resize(fontSize);
+    }
+
     auto at(int x, int y) -> CanvasCell & {
         return canvas.at(x, y);
     }
