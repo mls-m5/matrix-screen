@@ -22,21 +22,14 @@ struct CharacterCache {
     }
 
     CharacterCache(const std::string &filename, int fontSize)
-        : font{ttf::Font{loadFont(filename.c_str(), fontSize)}} {
-
-        if (!font) {
-            std::cerr << "could not load font " << filename << "\n";
-            std::exit(1);
-        }
-        {
-            auto a = font.renderGlyphBlended('a', {});
-            charWidth = a->w;
-            charHeight = a->h;
-        }
+        : font{ttf::Font{loadFont(filename.c_str(), fontSize)}}
+        , filename{filename} {
+        refreshFontSize();
     }
 
     void resize(int fontSize) {
         font = loadFont(filename, fontSize);
+        refreshFontSize();
     }
 
     uint32_t str2i(std::string_view str) {
@@ -58,6 +51,19 @@ struct CharacterCache {
 
         auto s = font.renderUTF8Blended(str.c_str(), {255, 255, 255, 255});
         return {textures[i] = renderer.createTextureFromSurface(s)};
+    }
+
+private:
+    void refreshFontSize() {
+        if (!font) {
+            std::cerr << "could not load font " << filename << "\n";
+            std::exit(1);
+        }
+        {
+            auto a = font.renderGlyphBlended('a', {});
+            charWidth = a->w;
+            charHeight = a->h;
+        }
     }
 };
 
