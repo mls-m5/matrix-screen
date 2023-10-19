@@ -28,6 +28,12 @@ struct Canvas {
     auto at(int x, int y) -> CanvasCell & {
         return values.at(y * width + x);
     }
+
+    void clear() {
+        for (auto &value : values) {
+            value = {};
+        }
+    }
 };
 
 } // namespace matscreen

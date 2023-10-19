@@ -4,6 +4,7 @@
 #include "sdlpp/ttf.hpp"
 #include <iostream>
 #include <map>
+#include <stdexcept>
 
 namespace matscreen {
 
@@ -28,6 +29,7 @@ struct CharacterCache {
     }
 
     void resize(int fontSize) {
+        textures.clear();
         font = loadFont(filename, fontSize);
         refreshFontSize();
     }
@@ -50,6 +52,10 @@ struct CharacterCache {
         }
 
         auto s = font.renderUTF8Blended(str.c_str(), {255, 255, 255, 255});
+        if (!s) {
+            throw std::runtime_error{"failed to create character " +
+                                     std::string{c}};
+        }
         return {textures[i] = renderer.createTextureFromSurface(s)};
     }
 
