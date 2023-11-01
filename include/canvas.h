@@ -29,6 +29,10 @@ struct Canvas {
         return values.at(y * width + x);
     }
 
+    bool isInside(int x, int y) {
+        return x >= 0 && y >= 0 && x < width && y < height;
+    }
+
     void clear() {
         for (auto &value : values) {
             value = {};

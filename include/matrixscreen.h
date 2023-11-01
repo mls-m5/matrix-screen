@@ -1,6 +1,8 @@
 #pragma once
 
 #include "canvas.h"
+#include "charactercache.h"
+#include "sdlpp/pixels.hpp"
 
 namespace matscreen {
 
@@ -20,17 +22,28 @@ struct MatrixScreen {
         render(renderer, 0, 0, {0, 0, canvas.width, canvas.height});
     }
 
+    sdl::Rect getDstRect(
+        int x, int y, sdl::Rect rect, int targetX, int targetY) {
+
+        return sdl::Rect{(x - rect.x) * cache.charWidth + targetX,
+                         (y - rect.y) * cache.charHeight + targetY,
+                         cache.charWidth,
+                         cache.charHeight};
+    }
+
     void render(sdl::RendererView renderer,
                 int targetX,
                 int targetY,
                 sdl::Rect rect) {
         for (int y = rect.y; y < rect.y + rect.h; ++y) {
             for (int x = rect.x; x < rect.x + rect.w; ++x) {
-                auto dstRect =
-                    sdl::Rect{(x - rect.x) * cache.charWidth + targetX,
-                              (y - rect.y) * cache.charHeight + targetY,
-                              cache.charWidth,
-                              cache.charHeight};
+                //                auto dstRect =
+                //                    sdl::Rect{(x - rect.x) * cache.charWidth +
+                //                    targetX,
+                //                              (y - rect.y) * cache.charHeight
+                //                              + targetY, cache.charWidth,
+                //                              cache.charHeight};
+                auto dstRect = getDstRect(x, y, rect, targetX, targetY);
 
                 auto cell = canvas.at(x, y);
 
@@ -45,6 +58,26 @@ struct MatrixScreen {
                 renderer.copy(cell.texture, dstRect);
             }
         }
+    }
+
+    /// Render a single cell highlighted
+    void renderCursor(sdl::RendererView renderer,
+                      sdl::Rect rect,
+                      int cursorX,
+                      int cursorY) {
+        if (!canvas.isInside(cursorX, cursorY)) {
+            return;
+        }
+        auto cell = canvas.at(cursorX, cursorY);
+
+        auto fg = cell.bg;
+        auto bg = cell.fg;
+
+        renderer.drawColor(bg);
+        auto dstRect = getDstRect(cursorX, cursorY, rect, 0, 0);
+        renderer.fillRect(dstRect);
+        cell.texture.colorMod(fg);
+        renderer.copy(cell.texture, dstRect);
     }
 
     void resize(int width, int height) {
