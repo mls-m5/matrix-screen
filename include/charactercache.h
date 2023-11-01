@@ -52,10 +52,11 @@ struct CharacterCache {
         }
 
         auto s = font.renderUTF8Blended(str.c_str(), {255, 255, 255, 255});
-        if (!s) {
-            throw std::runtime_error{"failed to create character " +
-                                     std::string{c}};
-        }
+        //        if (!s) {
+        //            // TODO: Handle this better!!
+        //            throw std::runtime_error{"failed to create character '" +
+        //                                     std::string{c} + "'"};
+        //        }
         return {textures[i] = renderer.createTextureFromSurface(s)};
     }
 
