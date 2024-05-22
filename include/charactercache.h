@@ -14,17 +14,21 @@ struct CharacterCache {
     ttf::Font font;
     std::map<uint32_t, sdl::Texture> textures;
     std::string filename;
+    int fontSize = 0;
 
+    /// Returns font to be usable in constructor
     ttf::Font loadFont(std::string filename, int size) {
         textures.clear();
         this->filename = filename;
+        this->fontSize = size;
         ttf::init();
         return ttf::Font{filename.c_str(), size};
     }
 
     CharacterCache(const std::string &filename, int fontSize)
         : font{ttf::Font{loadFont(filename.c_str(), fontSize)}}
-        , filename{filename} {
+        , filename{filename}
+        , fontSize{fontSize} {
         refreshFontSize();
     }
 
@@ -52,11 +56,6 @@ struct CharacterCache {
         }
 
         auto s = font.renderUTF8Blended(str.c_str(), {255, 255, 255, 255});
-        //        if (!s) {
-        //            // TODO: Handle this better!!
-        //            throw std::runtime_error{"failed to create character '" +
-        //                                     std::string{c} + "'"};
-        //        }
         return {textures[i] = renderer.createTextureFromSurface(s)};
     }
 
@@ -71,6 +70,7 @@ private:
             charWidth = a->w;
             charHeight = a->h;
         }
+        textures.clear();
     }
 };
 

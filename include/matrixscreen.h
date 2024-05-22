@@ -96,6 +96,10 @@ struct MatrixScreen {
         cache.resize(fontSize);
     }
 
+    int fontSize() const {
+        return cache.fontSize;
+    }
+
     auto at(int x, int y) -> CanvasCell & {
         return canvas.at(x, y);
     }
