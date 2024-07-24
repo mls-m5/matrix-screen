@@ -26,9 +26,10 @@ struct CharacterCache {
     }
 
     CharacterCache(const std::string &filename, int fontSize)
-        : font{ttf::Font{loadFont(filename.c_str(), fontSize)}}
+        : font{}
         , filename{filename}
         , fontSize{fontSize} {
+        font = ttf::Font{loadFont(filename.c_str(), fontSize)};
         refreshFontSize();
     }
 

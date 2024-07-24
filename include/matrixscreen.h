@@ -37,12 +37,6 @@ struct MatrixScreen {
                 sdl::Rect rect) {
         for (int y = rect.y; y < rect.y + rect.h; ++y) {
             for (int x = rect.x; x < rect.x + rect.w; ++x) {
-                //                auto dstRect =
-                //                    sdl::Rect{(x - rect.x) * cache.charWidth +
-                //                    targetX,
-                //                              (y - rect.y) * cache.charHeight
-                //                              + targetY, cache.charWidth,
-                //                              cache.charHeight};
                 auto dstRect = getDstRect(x, y, rect, targetX, targetY);
 
                 auto cell = canvas.at(x, y);
