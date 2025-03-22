@@ -2,6 +2,7 @@
 
 #include "sdlpp/render.hpp"
 #include "sdlpp/ttf.hpp"
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <stdexcept>
@@ -40,7 +41,7 @@ struct CharacterCache {
     }
 
     uint32_t str2i(std::string_view str) {
-        int ret = 0;
+        uint32_t ret = 0;
         for (size_t i = 0; i < str.size(); ++i) {
             ret = static_cast<uint32_t>(str.at(i)) << 8 * i;
         }
